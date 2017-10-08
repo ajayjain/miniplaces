@@ -128,7 +128,7 @@ class DataLoaderDisk(object):
         
         # Switch to NCHW ordering and convert to torch FloatTensor
         images_batch = torch.from_numpy(images_batch.swapaxes(2, 3).swapaxes(1, 2)).float()
-        labels_batch = torch.from_numpy(labels_batch).float()
+        labels_batch = torch.from_numpy(labels_batch).long()
         return images_batch, labels_batch
     
     def size(self):
