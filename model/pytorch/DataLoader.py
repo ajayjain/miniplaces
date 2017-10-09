@@ -136,3 +136,51 @@ class DataLoaderDisk(object):
 
     def reset(self):
         self._idx = 0
+
+# Loading test data sequentially from disk
+class DataLoaderDiskTest(object):
+    def __init__(self, **kwargs):
+
+        self.load_size = int(kwargs['load_size'])
+        self.fine_size = int(kwargs['fine_size'])
+        self.data_mean = np.array(kwargs['data_mean'])
+        self.data_root = os.path.join(kwargs['data_root'])
+
+        # read data info from lists
+        self.list_im = []
+        for im_name in sorted(os.listdir(os.path.join(self.data_root, 'test'))):
+            self.list_im.append(os.path.join(self.data_root, 'test', im_name))
+        self.list_im = np.array(self.list_im, np.object)
+        self.num = self.list_im.shape[0]
+        print('# Images found:', self.num)
+
+        self._idx = 0
+        
+    def next_batch(self, batch_size):
+        images_batch = np.zeros((batch_size, 3, self.fine_size, self.fine_size))
+        paths_batch = []
+        
+        for i in range(batch_size):
+            paths_batch.append(self.list_im[self._idx])
+            
+            image = scipy.misc.imread(self.list_im[self._idx])
+            image = scipy.misc.imresize(image, (self.load_size, self.load_size))
+            image = image.astype(np.float32)/255.
+            image = image - self.data_mean
+            
+            # Switch to NCHW ordering
+            images_batch[i] = image.swapaxes(1, 2).swapaxes(0, 1)
+            
+            self._idx += 1
+            self._idx %= self.size()
+        
+        # Convert to torch FloatTensor
+        images_batch = torch.from_numpy(images_batch).float()
+        
+        return images_batch, paths_batch
+    
+    def size(self):
+        return self.num
+
+    def reset(self):
+        self._idx = 0
