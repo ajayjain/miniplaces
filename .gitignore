@@ -4,6 +4,7 @@
 *.tar.gz
 data/images
 data/objects
+data/models
 *.h5
 
 # tf checkpoints
