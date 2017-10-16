@@ -184,3 +184,50 @@ class DataLoaderDiskTest(object):
 
     def reset(self):
         self._idx = 0
+        
+def load_objects():
+    # def load_xml():
+    object_files = glob.glob("../../data/objects/train/*/*/*.xml")
+    object_files.sort()
+
+    objects = []
+
+    for path in object_files:
+        with open(path, "r") as f:
+            xml = f.read()
+            xml = """<?xml version="1.0"?>
+            <base>
+            """ + xml + """
+            </base>
+            """
+
+            tree = ET.fromstring(xml)
+
+            path = os.path.join("../../data/images/train", tree.find("folder").text, tree.find("filename").text)
+
+            objs = []
+            for obj in tree.findall("objects"):
+                bndbox = obj.find("bndbox")
+                objdata = {
+                    "class": int(obj.find("class").text),
+                    # "polygon": obj.find("polygon"),  # ignoring polygon for now
+                    "bndbox": (
+                        (
+                            int(bndbox.find("xmin").text),
+                            int(bndbox.find("xmax").text)
+                        ),
+                        (
+                            int(bndbox.find("ymin").text),
+                            int(bndbox.find("ymax").text)
+                        )
+                    )
+                }
+                objs.append(objdata)
+
+            data = {
+                "path": path,
+                "class": int(tree.find("class").text),
+                "objects": objs,
+            }
+            objects.append(data)
+    return objects
