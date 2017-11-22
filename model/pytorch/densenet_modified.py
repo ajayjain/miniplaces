@@ -118,7 +118,7 @@ class DenseNet(nn.Module):
         num_classes (int) - number of classification classes
     """
     def __init__(self, growth_rate=32, block_config=(6, 12, 24, 16),
-                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=1000):
+                 num_init_features=64, bn_size=4, drop_rate=0, num_classes=100):
 
         super(DenseNet, self).__init__()
 
@@ -143,7 +143,6 @@ class DenseNet(nn.Module):
                 num_features = num_features // 2
 
         # Final batch norm
-        self.features.add_module('norm5', nn.BatchNorm2d(num_features))
 
         # Linear layer
         self.classifier = nn.Linear(num_features, num_classes)
@@ -156,3 +155,4 @@ class DenseNet(nn.Module):
         out = m(out).view(features.size(0), -1)
         out = self.classifier(out)
         return out
+

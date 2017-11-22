@@ -1,6 +1,0 @@
-h5py
-scipy
-numpy
-matplotlib
-ipython
-jupyter
